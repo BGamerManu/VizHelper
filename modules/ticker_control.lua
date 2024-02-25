@@ -1,5 +1,7 @@
 local tickerControl = {}
 
+local timer = require "lib.timer"
+
 --Check if ticker.txt exists
 local tickerExists = love.filesystem.read("ticker.txt")
 if tickerExists == nil then
@@ -15,6 +17,8 @@ tickerControl.tickerTextRSS = ffi.new("char[65535]", "")
 tickerControl.tickerUsingRSS = ffi.new("bool[1]", false)
 
 tickerControl.tickerLimit = ffi.new("int[1]", 0)
+
+tickerControl.rssFeedBox = ffi.new("int[1]", 0)
 
 local wires = require "wires"
 
@@ -49,7 +53,7 @@ tickerControl.draw = function()
         imgui.Text("Default ticker text") imgui.SameLine()
         imgui.InputText("###defaultTickerText", tickerControl.defaultTickerText, 1024)
 
-        if imgui.Checkbox("Use BBC News UK RSS Feed", tickerControl.tickerUsingRSS) then
+        if imgui.Checkbox("Use BBC RSS Feeds", tickerControl.tickerUsingRSS) then
             if tickerControl.tickerUsingRSS[0] == true then
                 GFX:send("headline", {Type = "GetTickerTextTable", Limit = tickerControl.tickerLimit[0],  Text = wires.wireData, DefaultText = ffi.string(tickerControl.defaultTickerText)})
             else
@@ -87,6 +91,24 @@ tickerControl.draw = function()
             
             imgui.Separator()
         else 
+            imgui.SameLine()
+            if imgui.Combo_Str("###rssFeedList", tickerControl.rssFeedBox, "BBC News UK\0BBC World\0") then
+                if tickerControl.rssFeedBox[0] == 0 then
+                    fillWithUKWires()
+
+                    timer.after(1.5, function()
+                        GFX:send("headline", {Type = "GetTickerTextTable", Limit = tickerControl.tickerLimit[0],  Text = wires.wireData, DefaultText = ffi.string(tickerControl.defaultTickerText)})
+                    end)
+                elseif tickerControl.rssFeedBox[0] == 1 then
+                    fillWithWorldWires()
+
+                    timer.after(1.5, function()
+                        GFX:send("headline", {Type = "GetTickerTextTable", Limit = tickerControl.tickerLimit[0],  Text = wires.wireData, DefaultText = ffi.string(tickerControl.defaultTickerText)})
+                    end)
+                end
+            end
+    
+
             imgui.Text("Limit ticker to ") imgui.SameLine() 
             if imgui.InputInt(" headlines (0 = no limit) ###tickerLimit", tickerControl.tickerLimit, 1, 2)  then
                 GFX:send("headline", {Type = "GetTickerTextTable", Limit = tickerControl.tickerLimit[0], Text = wires.wireData, DefaultText = ffi.string(tickerControl.defaultTickerText)})

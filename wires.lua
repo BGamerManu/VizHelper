@@ -11,7 +11,7 @@ local BBCWorldSCR = [[
     local socket = require("socket.http")
     local parser = xml2lua.parser(handler)
      local wireGatherData = ""
-    local wireGatherURLS = {"https://rss.playsamay4.com/bbcworld"}
+    local wireGatherURLS = {"http://rss.playsamay4.com:2082/bbcworld"}
     local inspect = require "lib.inspect"
 
     for i = 1, #wireGatherURLS do
@@ -37,7 +37,7 @@ local BBCUKSCR = [[
     local socket = require("socket.http")
     local parser = xml2lua.parser(handler)
      local wireGatherData = ""
-    local wireGatherURLS = {"https://rss.playsamay4.com/bbcuk"}
+    local wireGatherURLS = {"http://rss.playsamay4.com:2082/bbcuk"}
     local inspect = require "lib.inspect"
 
     for i = 1, #wireGatherURLS do
@@ -59,7 +59,7 @@ local BBCUKSCR = [[
 
 wires.wireData = {}
 
---local BBCWorldThread = love.thread.newThread(BBCWorldSCR)
+local BBCWorldThread = love.thread.newThread(BBCWorldSCR)
 --BBCWorldThread:start()
 
 local BBCUKThread = love.thread.newThread(BBCUKSCR)
@@ -84,7 +84,19 @@ function wires.Update(dt)
                 if wireGatherData[i].title ~= nil then table.insert(wires.wireData, wireGatherData[i].title) end
             end
 
+
+
         end
+end
+
+function fillWithWorldWires()
+    wires.wireData = {}
+    BBCWorldThread:start()
+end
+
+function fillWithUKWires()
+    wires.wireData = {}
+    BBCUKThread:start()
 end
 
 return wires
