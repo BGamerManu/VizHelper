@@ -1,10 +1,79 @@
 local brandingControl = {}
 
-brandingControl.shouldShow = ffi.new("bool[1]", false)
+brandingControl.shouldShow = ffi.new("bool[1]", true)
 
 brandingControl.show = function()
     brandingControl.shouldShow[0] = true
 end
+
+brandingControl.List = {
+    {
+        name = "News Channel Original",
+        channelName = "NEWS",
+        themeColor = {184/255,0,0},
+
+        headlineStrap = {
+            logo = "default",
+            text = "channelName",
+            newsBarColor = "themeColor",
+            leftBarColor = "themeColor",
+            
+            gillFont = false,
+        },
+
+        ticker = {
+            opaque = false,
+            tickerColor = "default",
+
+            defaultText = "bbc.co.uk/news",
+
+            headlinesText = "HEADLINES",
+            
+            redSquare = "themeColor",
+        },
+
+        newsBar = {
+            logo = "default",
+            text = "channelName",
+            newsBarColor = "themeColor",
+            clearBarColor = "themeColor",
+
+            clockColor = "themeColor",
+            clockMode = "On",
+
+            fasterOutAnimation = false,
+
+            gillFont = false,
+        },
+
+        straps = {
+            breakingColor = "themeColor",
+            breakingText = "BREAKING",
+
+            breakingLogoText = "BREAKING",
+            breakingLogoColor = "themeColor",
+            breakingLogoShowWithScroll = true,
+        },
+
+        badges = {
+            socialsBadgeColor = "themeColor",
+            creditBadgeColor = "themeColor",
+        },
+
+        tile = {
+            logo = "default",
+        },
+
+        liveBugs = {
+            text = "LIVE",
+            liveBoxColor = "themeColor",
+            barColor = "themeColor",
+            clearPartColor = "themeColor",
+
+        }
+        
+    }
+}
 
 brandingControl.brandingSelectedFile = love.filesystem.read("branding_exdata.bin")
 if brandingControl.brandingSelectedFile == nil then

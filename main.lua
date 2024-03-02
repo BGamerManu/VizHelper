@@ -1,6 +1,6 @@
 local inspect = require "lib.inspect"
 
-Version = "1.2.2"
+Version = "1.3"
 
 --Set Identity
 love.filesystem.setIdentity("VizHelper")
