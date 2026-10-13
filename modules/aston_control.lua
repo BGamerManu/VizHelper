@@ -111,34 +111,20 @@ astonControl.draw = function()
                 imgui.Text("Breaking Strap")
                 imgui.PopFont()
 
-                
+
                 imgui.InputTextWithHint("###breakingTitle", "Title of breaking news story (Appears after BREAKING)", astonControl.breakingTitle, 1024)
                 imgui.InputTextWithHint("###breakingTopLine", "Text to appear on the top line", astonControl.breakingText, 1024)
-                imgui.InputTextWithHint("###breakingBottomLine1", "Text to appear on the bottom line (1/2)", astonControl.breakingText1, 1024)
-                imgui.InputTextWithHint("###breakingBottomLine2", "Bottom line (2/2) Type NOP if you dont want it to scroll", astonControl.breakingText2, 1024)
+                imgui.InputTextWithHint("###breakingBottomLine1", "Text to appear on the bottom line (1/2) Leave blank for a single line strap", astonControl.breakingText1, 1024)
+                imgui.InputTextWithHint("###breakingBottomLine2", "Bottom line (2/2) Leave blank if you don't want it to scroll", astonControl.breakingText2, 1024)
 
-                if imgui.Button("Show BREAKING") then
+                imgui.Text("Show/Update again with new text to change it without taking the strap down")
+
+                if imgui.Button("Show/Update BREAKING") then
                     if ffi.string(astonControl.breakingTitle) == "" then
                         showError = true
                         errorTitle = "You missed a field!"
                         errorMessage = "You need to input the breaking strap's title"
                         return
-                    elseif ffi.string(astonControl.breakingText) == "" then
-                        showError = true
-                        errorTitle = "You missed a field!"
-                        errorMessage = "You need to input the breaking strap's top line"
-                        return
-                    elseif ffi.string(astonControl.breakingText1) == "" then
-                        showError = true
-                        errorTitle = "You missed a field!"
-                        errorMessage = "You need to input text for the bottom lines (1/2)"
-                        return
-                    elseif ffi.string(astonControl.breakingText2) == "" then
-                        showError = true
-                        errorTitle = "You missed a field!"
-                        errorMessage = "You need to input text for the bottom lines (2/2)"
-                        return
-            
                     end
 
 
@@ -148,56 +134,17 @@ astonControl.draw = function()
                 imgui.SameLine()
 
                 if imgui.Button("Scroll BREAKING") then
-                    if ffi.string(astonControl.breakingTitle) == "" then
-                        showError = true
-                        errorTitle = "You missed a field!"
-                        errorMessage = "You need to input the breaking strap's title"
-                        return
-                    elseif ffi.string(astonControl.breakingText) == "" then
-                        showError = true
-                        errorTitle = "You missed a field!"
-                        errorMessage = "You need to input the breaking strap's top line"
-                        return
-                    elseif ffi.string(astonControl.breakingText1) == "" then
-                        showError = true
-                        errorTitle = "You missed a field!"
-                        errorMessage = "You need to input text for the bottom lines (1/2)"
-                        return
-                    elseif ffi.string(astonControl.breakingText2) == "" then
-                        showError = true
-                        errorTitle = "You missed a field!"
-                        errorMessage = "You need to input text for the bottom lines (2/2)"
-                        return
-            
-                    end
-
                     GFX:send("headline", {Type = "Advance-BreakingTitle"})
                 end
 
                 imgui.SameLine()
 
                 if imgui.Button("Show/Update Strap###breaking") then
-                    if ffi.string(astonControl.breakingTitle) == "" then
-                        showError = true
-                        errorTitle = "You missed a field!"
-                        errorMessage = "You need to input the breaking strap's title"
-                        return
-                    elseif ffi.string(astonControl.breakingText) == "" then
+                    if ffi.string(astonControl.breakingText) == "" then
                         showError = true
                         errorTitle = "You missed a field!"
                         errorMessage = "You need to input the breaking strap's top line"
                         return
-                    elseif ffi.string(astonControl.breakingText1) == "" then
-                        showError = true
-                        errorTitle = "You missed a field!"
-                        errorMessage = "You need to input text for the bottom lines (1/2)"
-                        return
-                    elseif ffi.string(astonControl.breakingText2) == "" then
-                        showError = true
-                        errorTitle = "You missed a field!"
-                        errorMessage = "You need to input text for the bottom lines (2/2)"
-                        return
-            
                     end
 
                     GFX:send("headline", {Type = "Show-BreakingLowerThird", Text = ffi.string(astonControl.breakingText).."\n"..ffi.string(astonControl.breakingText1).."\n"..ffi.string(astonControl.breakingText2)})

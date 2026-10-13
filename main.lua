@@ -59,6 +59,7 @@ local liveBugText = ffi.new("char[1024]", "")
 local liveBugLive = ffi.new("bool[1]", true)
 local liveBugShowTime = ffi.new("bool[1]", false)
 local liveBugTimeOffset = ffi.new("int[1]", 0)
+local liveBugSide = ffi.new("int[1]", 0)
 
 local automationList = {
     {name = "Countdown", actions = {
@@ -458,6 +459,9 @@ function love.draw()
                 imgui.SameLine()
                 imgui.Checkbox("Show Time###TimeLiveCheckbox", liveBugShowTime)
 
+                imgui.Text("Side") imgui.SameLine()
+                imgui.Combo_Str("###liveBugSide", liveBugSide, "Left\0Right\0")
+
                 if liveBugShowTime[0] == true then 
                     imgui.InputInt("Offset in hours###liveOffsetInput", liveBugTimeOffset, 1, 2)
 
@@ -471,10 +475,11 @@ function love.draw()
                         text = "LIVE   "
                     end
                     text = text..ffi.string(liveBugText)
-                    if liveBugShowTime[0] == false then 
-                        GFX:send("headline", {Type = "Show-PlaceName", Text = text})
+                    local side = liveBugSide[0] == 1 and "right" or "left"
+                    if liveBugShowTime[0] == false then
+                        GFX:send("headline", {Type = "Show-PlaceName", Text = text, Side = side})
                     elseif liveBugShowTime[0] == true then
-                        GFX:send("headline", {Type = "Show-PlaceNameWithTime", Text = text, Offset = liveBugTimeOffset[0]})
+                        GFX:send("headline", {Type = "Show-PlaceNameWithTime", Text = text, Offset = liveBugTimeOffset[0], Side = side})
                     end
                 end
 
