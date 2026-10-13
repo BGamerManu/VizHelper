@@ -48,11 +48,10 @@ AstonControl = require "modules.aston_control"
 TickerControl = require "modules.ticker_control"
 BrandingControl = require "modules.branding_control"
 HeadlineControl = require "modules.headline_control"
-PlayoutControl = require "modules.playout_control"
+TitleControl = require "modules.title_control"
+TestingArea = require "modules.testing_area"
 
-local showTileCon = ffi.new("bool[1]", false)
 local showLiveCon = ffi.new("bool[1]", false)
-local showAutomationCon = ffi.new("bool[1]", false)
 
 
 local liveBugText = ffi.new("char[1024]", "")
@@ -60,20 +59,6 @@ local liveBugLive = ffi.new("bool[1]", true)
 local liveBugShowTime = ffi.new("bool[1]", false)
 local liveBugTimeOffset = ffi.new("int[1]", 0)
 local liveBugSide = ffi.new("int[1]", 0)
-
-local automationList = {
-    {name = "Countdown", actions = {
-        {id = "SetAndRun Source (Time Sync)", data = {"CountdownVid", "D:\\Example\\A1Day.mov"}, delay = 0},
-        {id = "Fade Scene", data = {"Countdown"}, delay = 500},
-        {id = "Viz KILL ALL", data = {}, delay = 0}, 
-    }},
-    {name = "Titles", actions = {
-        {id = "Set Source", data = {"TitlesVid", "D:\\Example\\Titles.mov"}, delay = 0},
-        {id = "Run Source", data = {"TitlesVid"}, delay = 0},
-        {id = "Fade Scene", data = {"Titles"}, delay = 1000},
-        {id = "Viz Show Ticker", data = {}, delay = 10000},
-    }}
-}
 
 local connectedToViz = false
 
@@ -285,48 +270,34 @@ function love.draw()
             if imgui.Button("Aston\nControl", imgui.ImVec2_Float(100, 100)) then
                 AstonControl.show()
             end
-            imgui.SameLine() 
+            imgui.SameLine()
             if imgui.Button("Ticker Control", imgui.ImVec2_Float(100, 100)) then
                 TickerControl.show()
             end
             imgui.SameLine()
-
-  
-            if imgui.Button("Playout\nControl", imgui.ImVec2_Float(100, 100)) then
-                PlayoutControl.show()
-            end
-            if imgui.IsItemHovered() then
-                imgui.SetTooltip("in development - coming soon")
-            end
-
-            imgui.SameLine()
             if imgui.Button("Branding\nControl", imgui.ImVec2_Float(100,100)) then
                 BrandingControl.show()
             end
-
-
+            imgui.SameLine()
             if imgui.Button("Headline\nControl", imgui.ImVec2_Float(100, 100)) then
                 HeadlineControl.show()
             end
-            imgui.SameLine()
-            if imgui.Button("Tile Control", imgui.ImVec2_Float(100, 100)) then
+
+
+            if imgui.Button("Title Control", imgui.ImVec2_Float(100, 100)) then
                 imgui.SetNextWindowPos(imgui.ImVec2_Float(500,120))
-                showTileCon[0] = true
+                TitleControl.show()
             end
             imgui.SameLine()
             if imgui.Button("Live Bug\nControl", imgui.ImVec2_Float(100, 100)) then
                 imgui.SetNextWindowPos(imgui.ImVec2_Float(500,120))
-                showLiveCon[0] = true            
+                showLiveCon[0] = true
             end
             imgui.SameLine()
-            if imgui.Button("Automation\n    (Alpha)", imgui.ImVec2_Float(100, 100)) then
-                imgui.SetNextWindowPos(imgui.ImVec2_Float(100,120))
-                -- showAutomationCon[0] = true            
+            if imgui.Button("Testing area", imgui.ImVec2_Float(100, 100)) then
+                imgui.SetNextWindowPos(imgui.ImVec2_Float(500,120))
+                TestingArea.show()
             end
-            if imgui.IsItemHovered() then
-                imgui.SetTooltip("in development - coming soon")
-            end
-
             
             local text = "Connect to Viz2.0"
             if connectedToViz == true then
@@ -374,61 +345,12 @@ function love.draw()
             end
         imgui.End()
 
-        if showTileCon[0] == true then
-            
-            imgui.Begin("Tile Control", showTileCon, imgui.love.WindowFlags("NoSavedSettings","NoResize"))
-                imgui.SetWindowSize_Vec2(imgui.ImVec2_Float(200,120))
-                imgui.Text("Control the BBC News tile")
-                imgui.Separator()
-                
-                if imgui.Button("Show Tile") then
-                    GFX:send("headline", {Type = "Show-TitleLogo"})
-                end
-                imgui.SameLine()
-                if imgui.Button("Hide Tile") then
-                    GFX:send("headline", {Type = "Hide-TitleLogo"})
-                end
-            imgui.End()
+        if TitleControl.shouldShow[0] == true then
+            TitleControl.draw()
         end
 
-        if showAutomationCon[0] == true then
-            
-            imgui.Begin("Automation (ALPHA 0.00000000000001)", showAutomationCon, imgui.love.WindowFlags("NoSavedSettings","NoResize"))
-                imgui.SetWindowSize_Vec2(imgui.ImVec2_Float(800,400))
-                imgui.PushFont(TimingsFont)
-                imgui.Text("Automation (alpha)")
-                imgui.PopFont()
-                
-                imgui.PushStyleColor_Vec4(imgui.ImGuiCol_ChildBg, imgui.ImVec4_Float(0.1,0.1,0.1,1))
-                imgui.PushStyleVar_Vec2(imgui.ImGuiStyleVar_ChildRounding, imgui.ImVec2_Float(5,5))
-
-                imgui.Text("Rundown items:")
-                imgui.BeginListBox("###automationList",imgui.ImVec2_Float(8000, 12 * imgui.GetTextLineHeightWithSpacing()))
-                    for i,v in ipairs(automationList) do
-                        if imgui.CollapsingHeader_TreeNodeFlags(v.name, nil) then
-                            imgui.BeginChild_Str("###childBox"..v.name,imgui.ImVec2_Float(imgui.GetWindowWidth()-8, 100))
-                                if v.actions == nil then
-                                    imgui.Text("There are no actions under this item") 
-                                else
-                                    for i2,v2 in ipairs(v.actions) do
-                                        local assembled = ""
-                                        if v2.data ~= {} then
-                                            for i3,v3 in ipairs(v2.data) do
-                                                assembled = assembled .. " " .. v3
-                                            end
-                                        end
-                                        imgui.Selectable_Bool(v2.id.." / "..assembled.." / Delay: "..v2.delay.."ms###selectable"..v.name)
-                                    end
-                                end
-                            
-                            imgui.EndChild()
-                        end
-                    end
-                imgui.EndListBox()
-
-                    
-                
-             imgui.End()
+        if TestingArea.shouldShow[0] == true then
+            TestingArea.draw()
         end
 
         if AstonControl.shouldShow[0] == true then
@@ -489,10 +411,6 @@ function love.draw()
                     GFX:send("headline", {Type = "Hide-PlaceName"})
                 end
              imgui.End()
-        end
-
-        if PlayoutControl.shouldShow[0] == true then
-            -- PlayoutControl.draw()
         end
 
         if TickerControl.shouldShow[0] == true then

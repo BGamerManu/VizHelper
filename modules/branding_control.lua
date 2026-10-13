@@ -230,7 +230,7 @@ brandingControl.draw = function()
             elseif brandingControl.clockModeBox[0] == 2 then
                 xclockMode = "breakfast"
             end
-            GFX:send("headline", {Type = "Set-Branding", channelName = ffi.string(brandingControl.brandingThemeNameBox), opaque = brandingControl.brandingTickerOpaque, coloredStrap = brandingControl.brandingColoredStrap[0], ThemeColor = {brandingControl.brandingThemeColor[0],brandingControl.brandingThemeColor[1],brandingControl.brandingThemeColor[2]}})
+            GFX:send("headline", {Type = "Set-Branding", channelName = ffi.string(brandingControl.brandingThemeNameBox), opaque = brandingControl.brandingTickerOpaque[0], coloredStrap = brandingControl.brandingColoredStrap[0], ThemeColor = {brandingControl.brandingThemeColor[0],brandingControl.brandingThemeColor[1],brandingControl.brandingThemeColor[2]}, clockMode = xclockMode})
         end
 
         imgui.Text("Custom logos coming soon....")

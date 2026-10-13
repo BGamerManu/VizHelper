@@ -112,7 +112,7 @@ astonControl.draw = function()
                 imgui.PopFont()
 
 
-                imgui.InputTextWithHint("###breakingTitle", "Title of breaking news story (Appears after BREAKING)", astonControl.breakingTitle, 1024)
+                imgui.InputTextWithHint("###breakingTitle", "Title of breaking news story (Appears after BREAKING, optional)", astonControl.breakingTitle, 1024)
                 imgui.InputTextWithHint("###breakingTopLine", "Text to appear on the top line", astonControl.breakingText, 1024)
                 imgui.InputTextWithHint("###breakingBottomLine1", "Text to appear on the bottom line (1/2) Leave blank for a single line strap", astonControl.breakingText1, 1024)
                 imgui.InputTextWithHint("###breakingBottomLine2", "Bottom line (2/2) Leave blank if you don't want it to scroll", astonControl.breakingText2, 1024)
@@ -120,14 +120,6 @@ astonControl.draw = function()
                 imgui.Text("Show/Update again with new text to change it without taking the strap down")
 
                 if imgui.Button("Show/Update BREAKING") then
-                    if ffi.string(astonControl.breakingTitle) == "" then
-                        showError = true
-                        errorTitle = "You missed a field!"
-                        errorMessage = "You need to input the breaking strap's title"
-                        return
-                    end
-
-
                     GFX:send("headline", {Type = "Show-BreakingTitle", Text = ffi.string(astonControl.breakingTitle)})
                 end
 
