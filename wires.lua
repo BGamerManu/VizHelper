@@ -19,8 +19,10 @@ local BBCWorldSCR = [[
 
         if wireGatherData == nil then return end
     
-        parser:parse(wireGatherData)
+        --The server may answer with something that is not RSS (e.g. a redirect page): ignore it instead of crashing the helper
+        if not pcall(parser.parse, parser, wireGatherData) then return end
         --if i == 1 then print(inspect(handler)) end
+        if handler.root.rss == nil then return end
         local wireGatherTable = handler.root.rss.channel.item
         local wireData = handler.root.rss.channel
         
@@ -45,7 +47,8 @@ local BBCUKSCR = [[
 
         if wireGatherData == nil then return end
     
-        parser:parse(wireGatherData)
+        --The server may answer with something that is not RSS (e.g. a redirect page): ignore it instead of crashing the helper
+        if not pcall(parser.parse, parser, wireGatherData) then return end
         --if i == 1 then print(inspect(handler)) end
           if handler.root.rss == nil then return end
         local wireGatherTable = handler.root.rss.channel.item
