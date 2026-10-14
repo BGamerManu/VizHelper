@@ -32,32 +32,22 @@ if love.filesystem.getInfo("badges.dat") ~= nil then
     astonControl.presetBadges = bitser.loadLoveFile("badges.dat")
 else
     astonControl.presetBadges = {
-        {"NEWS AT NINE", bcolor = {.7,0,0,1}, tcolor = {1,1,1,1}},
-        {"NEWS AT FIVE", bcolor = {.7,0,0,1}, tcolor = {1,1,1,1}},
         {"ACROSS THE UK", bcolor = {.7,0,0,1}, tcolor = {1,1,1,1}},
-        {"BUSINESS BREIFING", bcolor = {.7,0,0,1}, tcolor = {1,1,1,1}},
-        {"REVIEW 2022", bcolor = {.7,0,0,1}, tcolor = {1,1,1,1}},
-        {"OUTSIDE SOURCE", bcolor = {.9,0,0,1}, tcolor = {1,1,1,1}},
-        {"THE BRIEFING", bcolor = {.9,0,0,1}, tcolor = {1,1,1,1}},
         {"WORLD NEWS TODAY", bcolor = {.9,0,0,1}, tcolor = {1,1,1,1}},
-        {"OUTSIDE SOURCE", bcolor = {.9,0,0,1}, tcolor = {1,1,1,1}},
-        {"THE CONTEXT", bcolor = {.9,0,0,1}, tcolor = {1,1,1,1}},
-        {"OUTSIDE SOURCE", bcolor = {0,0.5,.8,1}, tcolor = {1,1,1,1}},
+        {"THE WORLD TODAY", bcolor = {.9,0,0,1}, tcolor = {1,1,1,1}},
+        {"NEWS NOW", bcolor = {.9,0,0,1}, tcolor = {1,1,1,1}},
+        {"THE CONTEXT", bcolor = {1,1,1,1}, tcolor = {.9,0,0,1}},
+        {"THE CONTEXT USA", bcolor = {.9,0,0,1}, tcolor = {1,1,1,1}},
+        {"BUSINESS TODAY", bcolor = {.9,0,0,1}, tcolor = {1,1,1,1}},
         {"NEWSROOM LIVE", bcolor = {1,1,1,1}, tcolor = {.7,0,0,0}},
         {"AFTERNOON LIVE", bcolor = {1,0.3,0,1}, tcolor = {1,1,1,1}},
         {"NEWSDAY", bcolor = {1,0.4,0,1}, tcolor = {1,1,1,1}},
-        {"IMPACT", bcolor = {0.9,0.2,0,1}, tcolor = {1,1,1,1}},
-        {"WORKLIFE", bcolor = {0.9,0.5,0.2,1}, tcolor = {1,1,1,1}},
-        {"BEYOND 100 DAYS", bcolor = {0,0.4,0.5,1}, tcolor = {1,1,1,1}},
-        {"THE CONTEXT", bcolor = {0,0.4,0.5,1}, tcolor = {1,1,1,1}},
-        {"THE PAPERS", bcolor = {0,0.4,0.5,1}, tcolor = {1,1,1,1}},
-        {"BUSINESS LIVE", bcolor = {0,0.3,0.6,1}, tcolor = {1,1,1,1}},
         {"GLOBAL", bcolor = {0.1,0.6,0.6,1}, tcolor = {1,1,1,1}},
         {"NICKY CAMPBELL", bcolor = {0,0.7,0.7,1}, tcolor = {0,0,0,1}},
         {"FOCUS ON AFRICA", bcolor = {0.3,0.5,0,1}, tcolor = {1,1,1,1}},
         {"G M T", bcolor = {0.6,0,0.5,1}, tcolor = {1,1,1,1}},
         {"SPORTSDAY", bcolor = {0.9,0.7,0,1}, tcolor = {0,0,0,1}},
-        {"YOUR QUESTIONS ANSWERED", bcolor = {0.4,0.4,0.4,1}, tcolor = {1,1,1,1}},        
+        {"YOUR QUESTIONS ANSWERED", bcolor = {0.4,0.4,0.4,1}, tcolor = {1,1,1,1}},
     }
     bitser.dumpLoveFile("badges.dat", astonControl.presetBadges)
 end

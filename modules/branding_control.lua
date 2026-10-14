@@ -1,6 +1,6 @@
 local brandingControl = {}
 
-brandingControl.shouldShow = ffi.new("bool[1]", true)
+brandingControl.shouldShow = ffi.new("bool[1]", false)
 
 brandingControl.show = function()
     brandingControl.shouldShow[0] = true
@@ -75,13 +75,6 @@ brandingControl.List = {
     }
 }
 
-brandingControl.brandingSelectedFile = love.filesystem.read("branding_exdata.bin")
-if brandingControl.brandingSelectedFile == nil then
-    love.filesystem.write("branding_exdata.bin", "1")
-    brandingControl.brandingSelectedFile = "1"
-end
-
-
 brandingControl.brandingNameBox = ffi.new("char[1024]", "News Red Straps")
 brandingControl.brandingThemeNameBox = ffi.new("char[1024]", "NEWS")
 brandingControl.brandingThemeColor = ffi.new("float[3]", {0.68,0,0})
@@ -90,7 +83,8 @@ brandingControl.brandingColoredStrap = ffi.new("bool[1]", true)
 brandingControl.clockModeBox = ffi.new("int[1]", 0)
 
 brandingControl.brandingPresets = {}
-brandingControl.brandingPresetSelected = tonumber(brandingControl.brandingSelectedFile)
+--The program always starts with the first saved branding (News Red Straps)
+brandingControl.brandingPresetSelected = 1
 if love.filesystem.getInfo("branding.dat") ~= nil then
     ---@diagnostic disable-next-line: cast-local-type
     brandingControl.brandingPresets = bitser.loadLoveFile("branding.dat")
@@ -103,16 +97,17 @@ else
         {name = "Region Example (NWT)", channelName = "NORTH WEST TONIGHT", opaque = false, coloredStrap = false, themeColor = {0.68, 0, 0}, mode = "Region", clockMode = "default"},
     }
     bitser.dumpLoveFile("branding.dat", brandingControl.brandingPresets)
-    local sendData = {
-        Type = "SetBranding",
-        ChannelName = "NEWS",
-        Opaque = true,
-        ColoredStrap = true,
-        ThemeColor = {0.68,0,0},
-        Mode = "Channel",
-        ClockMode = "default"
-    }
-    GFX:send("headline", sendData)
+end
+
+--Send what the boxes say (News Red Straps when the program starts) to Viz2.0
+brandingControl.send = function()
+    local xclockMode = "default"
+    if brandingControl.clockModeBox[0] == 1 then
+        xclockMode = "off"
+    elseif brandingControl.clockModeBox[0] == 2 then
+        xclockMode = "breakfast"
+    end
+    GFX:send("headline", {Type = "Set-Branding", channelName = ffi.string(brandingControl.brandingThemeNameBox), opaque = brandingControl.brandingTickerOpaque[0], coloredStrap = brandingControl.brandingColoredStrap[0], ThemeColor = {brandingControl.brandingThemeColor[0],brandingControl.brandingThemeColor[1],brandingControl.brandingThemeColor[2]}, clockMode = xclockMode})
 end
 
 brandingControl.draw = function()
@@ -166,7 +161,7 @@ brandingControl.draw = function()
         ---@diagnostic disable-next-line: param-type-mismatch
         for i, v in ipairs(brandingControl.brandingPresets) do
                 local selected = false
-                if brandingPresetSelected == i then
+                if brandingControl.brandingPresetSelected == i then
                     selected = true
 
 
@@ -176,7 +171,6 @@ brandingControl.draw = function()
                 -- imgui.PushStyleColor_Vec4(imgui.ImGuiCol_FrameBg, imgui.ImVec4_Float(1,0,0, 1))
                 if imgui.Selectable_Bool(v.name.."###"..i, selected) then
                     brandingControl.brandingPresetSelected = i
-                    love.filesystem.write("branding_exdata.bin", tostring(i))
                     brandingControl.brandingNameBox = ffi.new("char[1024]", v.name)
                     brandingControl.brandingThemeNameBox = ffi.new("char[1024]", v.channelName)
                     brandingControl.brandingThemeColor[0] = v.themeColor[1]
@@ -222,15 +216,7 @@ brandingControl.draw = function()
         imgui.SameLine()
         
         if imgui.Button("Send Branding") then
-            local xclockMode = "default"
-            if brandingControl.clockModeBox[0] == 0 then
-                xclockMode = "default"
-            elseif brandingControl.clockModeBox[0] == 1 then
-                xclockMode = "off"
-            elseif brandingControl.clockModeBox[0] == 2 then
-                xclockMode = "breakfast"
-            end
-            GFX:send("headline", {Type = "Set-Branding", channelName = ffi.string(brandingControl.brandingThemeNameBox), opaque = brandingControl.brandingTickerOpaque[0], coloredStrap = brandingControl.brandingColoredStrap[0], ThemeColor = {brandingControl.brandingThemeColor[0],brandingControl.brandingThemeColor[1],brandingControl.brandingThemeColor[2]}, clockMode = xclockMode})
+            brandingControl.send()
         end
 
         imgui.Text("Custom logos coming soon....")

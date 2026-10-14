@@ -86,6 +86,7 @@ end
 function registerCallbacks()
     GFX:on("connect", function(data)
         GFX:send("headline", {Type = "GetTickerText", Text = ffi.string(TickerControl.tickerText), DefaultText = ffi.string(TickerControl.defaultTickerText)})
+        BrandingControl.send()
         connectedToViz = true
 
         --This breaks figure out why \/\/\/
@@ -382,7 +383,7 @@ function love.draw()
                 imgui.Checkbox("Show Time###TimeLiveCheckbox", liveBugShowTime)
 
                 imgui.Text("Side") imgui.SameLine()
-                imgui.Combo_Str("###liveBugSide", liveBugSide, "Left\0Right\0")
+                imgui.Combo_Str("###liveBugSide", liveBugSide, "Left\0Right\0Both\0")
 
                 if liveBugShowTime[0] == true then 
                     imgui.InputInt("Offset in hours###liveOffsetInput", liveBugTimeOffset, 1, 2)
@@ -397,7 +398,7 @@ function love.draw()
                         text = "LIVE   "
                     end
                     text = text..ffi.string(liveBugText)
-                    local side = liveBugSide[0] == 1 and "right" or "left"
+                    local side = ({[0] = "left", "right", "both"})[liveBugSide[0]]
                     if liveBugShowTime[0] == false then
                         GFX:send("headline", {Type = "Show-PlaceName", Text = text, Side = side})
                     elseif liveBugShowTime[0] == true then
