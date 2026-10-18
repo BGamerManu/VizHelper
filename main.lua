@@ -1,6 +1,6 @@
 local inspect = require "lib.inspect"
 
-Version = "1.3"
+Version = "1.4.0"
 
 --Set Identity
 love.filesystem.setIdentity("VizHelper")
@@ -27,8 +27,6 @@ local dllExists = love.filesystem.read("libraries/cimgui.dll")
 sock = require "lib.sock"
 Inspect = require "lib.inspect"
 
-local showDebug = false
-
 if jit.os == "Windows" then
     if dllExists == nil then
         love.window.showMessageBox("Error", "Couldn't find cImGUI dll file. Contact playsamay4#3646.", "error", true)
@@ -44,6 +42,9 @@ package.cpath = string.format("%s;%s/?.%s", package.cpath, lib_path, extension)
 imgui = require "cimgui" -- cimgui is the folder containing the Lua module (the "src" folder in the github repository)
 
 
+local fetch = require "lib.fetch"
+
+LogoControl = require "modules.logo_control"
 AstonControl = require "modules.aston_control"
 TickerControl = require "modules.ticker_control"
 BrandingControl = require "modules.branding_control"
@@ -55,6 +56,7 @@ local showLiveCon = ffi.new("bool[1]", false)
 
 
 local liveBugText = ffi.new("char[1024]", "")
+local liveBugText2 = ffi.new("char[1024]", "")
 local liveBugLive = ffi.new("bool[1]", true)
 local liveBugShowTime = ffi.new("bool[1]", false)
 local liveBugTimeOffset = ffi.new("int[1]", 0)
@@ -85,7 +87,7 @@ end
 
 function registerCallbacks()
     GFX:on("connect", function(data)
-        GFX:send("headline", {Type = "GetTickerText", Text = ffi.string(TickerControl.tickerText), DefaultText = ffi.string(TickerControl.defaultTickerText)})
+        TickerControl.send()
         BrandingControl.send()
         connectedToViz = true
 
@@ -235,32 +237,15 @@ function love.update(dt)
     imgui.NewFrame()
     timer.update(dt)
     GFX:update()
-    TickerControl.update(dt)
+    fetch.update()
 
 end
 
 function love.draw()
     love.graphics.setBackgroundColor(0, 0, 0, 1)
-    if showDebug == true then imgui.ShowDemoWindow() end
-    imgui.Begin("VizHelper Hub", nil, imgui.love.WindowFlags("MenuBar","NoMove", "NoTitleBar", "NoSavedSettings", "NoResize", "NoBringToFrontOnFocus","NoDocking","NoNavFocus"))
+    imgui.Begin("VizHelper Hub", nil, imgui.love.WindowFlags("NoMove", "NoTitleBar", "NoSavedSettings", "NoResize", "NoBringToFrontOnFocus","NoDocking","NoNavFocus"))
         imgui.SetWindowSize_Vec2(imgui.ImVec2_Float(love.graphics.getWidth(), 1))
         imgui.SetWindowPos_Vec2(imgui.ImVec2_Float(0, 0))
-        if imgui.BeginMenuBar() then
-            if imgui.BeginMenu("VizHelper") then
-                if imgui.MenuItem_Bool("Toggle ImGUI debug menu") then
-                    showDebug = not showDebug
-                end
-
-                if imgui.MenuItem_Bool("Exit") then
-                    love.event.quit()
-                end
-            
-                imgui.EndMenu()
-            end
-
-        
-            imgui.EndMenuBar()
-        end
         imgui.SetNextWindowSize(imgui.ImVec2_Float(500,love.graphics.getHeight()-80))
         imgui.Begin("VizHelper Main", nil, imgui.love.WindowFlags("NoSavedSettings","NoResize", "NoTitleBar", "NoBorders", "NoMove", "NoBackground","NoBringToFrontOnFocus"))
             
@@ -393,16 +378,15 @@ function love.draw()
                 end
 
                 if imgui.Button("Show Bug") then
-                    local text = ""
-                    if liveBugLive[0] == true then
-                        text = "LIVE   "
-                    end
-                    text = text..ffi.string(liveBugText)
+                    local prefix = liveBugLive[0] == true and "LIVE   " or ""
+                    local text = prefix..ffi.string(liveBugText)
+                    --The right hand bug of "Both" has its own location
+                    local text2 = liveBugSide[0] == 2 and prefix..ffi.string(liveBugText2) or nil
                     local side = ({[0] = "left", "right", "both"})[liveBugSide[0]]
                     if liveBugShowTime[0] == false then
-                        GFX:send("headline", {Type = "Show-PlaceName", Text = text, Side = side})
+                        GFX:send("headline", {Type = "Show-PlaceName", Text = text, Text2 = text2, Side = side})
                     elseif liveBugShowTime[0] == true then
-                        GFX:send("headline", {Type = "Show-PlaceNameWithTime", Text = text, Offset = liveBugTimeOffset[0], Side = side})
+                        GFX:send("headline", {Type = "Show-PlaceNameWithTime", Text = text, Text2 = text2, Offset = liveBugTimeOffset[0], Side = side})
                     end
                 end
 
@@ -420,6 +404,10 @@ function love.draw()
 
         if BrandingControl.shouldShow[0] == true then
             BrandingControl.draw()
+        end
+
+        if LogoControl.shouldShow[0] == true then
+            LogoControl.draw()
         end
 
         if showError == true then 
@@ -456,6 +444,10 @@ end
 
 
 
+
+function love.filedropped(file)
+    LogoControl.dropped(file)
+end
 
 function love.mousemoved(x, y, ...)
     imgui.love.MouseMoved(x, y)
